@@ -1,6 +1,8 @@
 package com.example.doctors.view.screens
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -14,14 +16,18 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -30,6 +36,10 @@ import com.example.doctors.navigation.Routes
 import com.example.doctors.ui.theme.PrimaryBlue
 import com.example.doctors.ui.theme.White
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 
 data class OnboardingPage(
@@ -56,12 +66,144 @@ val onboardingPages = listOf(
     )
 )
 
+//
+//@OptIn(ExperimentalFoundationApi::class)
+//@Composable
+//fun OnboardingScreen(navController: NavHostController) {
+//    val pageCount = onboardingPages.size
+//    // Remember the state for the pager
+//    val pagerState = rememberPagerState(initialPage = 0) { pageCount }
+//    val scope = rememberCoroutineScope()
+//
+//    Column(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .background(PrimaryBlue),
+//        horizontalAlignment = Alignment.CenterHorizontally
+//    ) {
+//
+//        HorizontalPager(
+//            state = pagerState,
+//            modifier = Modifier.weight(1f)
+//        ) { pageIndex ->
+//            OnboardingItem(page = onboardingPages[pageIndex])
+//        }
+//
+//        Spacer(modifier = Modifier.height(16.dp))
+//
+//        // indicator
+//        PageIndicator(pageCount = pageCount, currentPage = pagerState.currentPage)
+//
+//        Spacer(modifier = Modifier.height(16.dp))
+//
+//        Button(
+//            onClick = {
+//                if (pagerState.currentPage < pageCount - 1) {
+//
+//                    scope.launch {
+//                        pagerState.animateScrollToPage(
+//                            pagerState.currentPage + 1,
+//                            animationSpec = tween(600)
+//                        )
+//                    }
+//                } else {
+//
+//                    navController.navigate(Routes.LOGIN) {
+//                        popUpTo(Routes.ONBOARDING) { inclusive = true }
+//                    }
+//                }
+//            },
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .height(56.dp)
+//                .padding(horizontal = 24.dp),
+//            shape = RoundedCornerShape(12.dp),
+//            colors = ButtonDefaults.buttonColors(containerColor = White)
+//        ) {
+//            Text(
+//                text = if (pagerState.currentPage < pageCount - 1) "Next" else "Get Started",
+//                color = PrimaryBlue,
+//                fontSize = 18.sp,
+//                fontWeight = FontWeight.SemiBold
+//            )
+//        }
+//        Spacer(modifier = Modifier.height(32.dp))
+//    }
+//}
+//
+//@Composable
+//fun OnboardingItem(page: OnboardingPage) {
+//    Column(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .padding(top = 80.dp),
+//        horizontalAlignment = Alignment.CenterHorizontally
+//    ) {
+//
+//        Box(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(horizontal = 24.dp)
+//                .clip(RoundedCornerShape(20.dp))
+//                .background(White)
+//                .weight(1f),
+//            contentAlignment = Alignment.Center
+//        ) {
+//            Column(
+//                horizontalAlignment = Alignment.CenterHorizontally,
+//                modifier = Modifier.padding(32.dp)
+//            ) {
+//
+//                Image(
+//                    painter = painterResource(id = page.imageRes),
+//                    contentDescription = page.title,
+//                    modifier = Modifier
+//                        .size(360.dp)
+//                        .padding(bottom = 24.dp)
+//                )
+//
+//                Text(
+//                    text = page.title,
+//                    fontSize = 26.sp,
+//                    fontWeight = FontWeight.Bold,
+//                    color = PrimaryBlue,
+//                    textAlign = TextAlign.Center
+//                )
+//                Spacer(modifier = Modifier.height(12.dp))
+//                Text(
+//                    text = page.description,
+//                    fontSize = 16.sp,
+//                    color = Color.Gray,
+//                    textAlign = TextAlign.Center
+//                )
+//            }
+//        }
+//    }
+//}
+//
+//@Composable
+//fun PageIndicator(pageCount: Int, currentPage: Int) {
+//    Row(
+//        horizontalArrangement = Arrangement.Center,
+//        modifier = Modifier.fillMaxWidth()
+//    ) {
+//        repeat(pageCount) { iteration ->
+//            val color = if (currentPage == iteration) White else White.copy(alpha = 0.5f)
+//            Box(
+//                modifier = Modifier
+//                    .padding(4.dp)
+//                    .clip(CircleShape)
+//                    .background(color)
+//                    .size(8.dp)
+//            )
+//        }
+//    }
+//}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun OnboardingScreen(navController: NavHostController) {
     val pageCount = onboardingPages.size
-    // Remember the state for the pager
     val pagerState = rememberPagerState(initialPage = 0) { pageCount }
     val scope = rememberCoroutineScope()
 
@@ -71,33 +213,37 @@ fun OnboardingScreen(navController: NavHostController) {
             .background(PrimaryBlue),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
+        // The Pager stays, but we will animate the content INSIDE OnboardingItem
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            // Reduced page spacing for a tighter feel
+            pageSpacing = 16.dp
         ) { pageIndex ->
-            OnboardingItem(page = onboardingPages[pageIndex])
+            // Pass the 'isVisible' state to trigger internal animations
+            OnboardingItem(
+                page = onboardingPages[pageIndex],
+                isVisible = pagerState.currentPage == pageIndex
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // indicator
+        // Animated Indicator (Width expands when active)
         PageIndicator(pageCount = pageCount, currentPage = pagerState.currentPage)
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = {
                 if (pagerState.currentPage < pageCount - 1) {
-
                     scope.launch {
                         pagerState.animateScrollToPage(
                             pagerState.currentPage + 1,
-                            animationSpec = tween(600)
+                            animationSpec = tween(700) // Smoother, slightly slower transition
                         )
                     }
                 } else {
-
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(Routes.ONBOARDING) { inclusive = true }
                     }
@@ -105,87 +251,19 @@ fun OnboardingScreen(navController: NavHostController) {
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
+                .height(58.dp)
                 .padding(horizontal = 24.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = White)
+            shape = RoundedCornerShape(16.dp), // Slightly rounder for a modern look
+            colors = ButtonDefaults.buttonColors(containerColor = White),
+            elevation = ButtonDefaults.buttonElevation(4.dp)
         ) {
             Text(
                 text = if (pagerState.currentPage < pageCount - 1) "Next" else "Get Started",
                 color = PrimaryBlue,
                 fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.Bold
             )
         }
-        Spacer(modifier = Modifier.height(32.dp))
-    }
-}
-
-@Composable
-fun OnboardingItem(page: OnboardingPage) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 80.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .clip(RoundedCornerShape(20.dp))
-                .background(White)
-                .weight(1f),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(32.dp)
-            ) {
-
-                Image(
-                    painter = painterResource(id = page.imageRes),
-                    contentDescription = page.title,
-                    modifier = Modifier
-                        .size(360.dp)
-                        .padding(bottom = 24.dp)
-                )
-
-                Text(
-                    text = page.title,
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = PrimaryBlue,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = page.description,
-                    fontSize = 16.sp,
-                    color = Color.Gray,
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun PageIndicator(pageCount: Int, currentPage: Int) {
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        repeat(pageCount) { iteration ->
-            val color = if (currentPage == iteration) White else White.copy(alpha = 0.5f)
-            Box(
-                modifier = Modifier
-                    .padding(4.dp)
-                    .clip(CircleShape)
-                    .background(color)
-                    .size(8.dp)
-            )
-        }
+        Spacer(modifier = Modifier.height(40.dp))
     }
 }
