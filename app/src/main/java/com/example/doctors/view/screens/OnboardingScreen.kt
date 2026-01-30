@@ -267,3 +267,107 @@ fun OnboardingScreen(navController: NavHostController) {
         Spacer(modifier = Modifier.height(40.dp))
     }
 }
+
+@Composable
+fun OnboardingItem(page: OnboardingPage, isVisible: Boolean) {
+
+    // 1. Create a 'started' state to trigger the very first animation
+    var hasStarted by remember { mutableStateOf(false) }
+
+    // 2. Trigger the start as soon as this item is placed on screen
+    LaunchedEffect (Unit) {
+        hasStarted = true
+    }
+
+    // 3. Update the logic: Animate if the page IS the current pager page AND hasStarted is true
+    val active = isVisible && hasStarted
+
+    val alpha by animateFloatAsState(
+        targetValue = if (active) 1f else 0f,
+        animationSpec = tween(1000), // Slightly slower (1s) makes it feel more "premium" like the video
+        label = "fade"
+    )
+
+    val translateY by animateDpAsState(
+        targetValue = if (active) 0.dp else 60.dp, // Increased from 40 to 60 for a stronger 'float up' effect
+        animationSpec = tween(1000),
+        label = "float"
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 60.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .clip(RoundedCornerShape(32.dp))
+                .background(White)
+                .weight(1f),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .padding(32.dp)
+                    .alpha(alpha)        // This handles the Fade-in for Screen 1, 2, and 3
+                    .offset(y = translateY) // This handles the Float-up for Screen 1, 2, and 3
+            ) {
+                Image(
+                    painter = painterResource(id = page.imageRes),
+                    contentDescription = page.title,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(bottom = 20.dp),
+                    contentScale = ContentScale.Fit
+                )
+
+                Text(
+                    text = page.title,
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color(0xFF1A1A1A),
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                Text(
+                    text = page.description,
+                    fontSize = 16.sp,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 22.sp
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun PageIndicator(pageCount: Int, currentPage: Int) {
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        repeat(pageCount) { iteration ->
+            // Animated width: Active dot is a pill shape, inactive is a circle
+            val width by animateDpAsState(targetValue = if (currentPage == iteration) 24.dp else 8.dp, label = "")
+            val color = if (currentPage == iteration) White else White.copy(alpha = 0.4f)
+
+            Box(
+                modifier = Modifier
+                    .padding(4.dp)
+                    .height(8.dp)
+                    .width(width)
+                    .clip(CircleShape)
+                    .background(color)
+            )
+        }
+    }
+}
+
