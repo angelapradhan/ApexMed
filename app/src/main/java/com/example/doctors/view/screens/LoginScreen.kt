@@ -1,21 +1,33 @@
 package com.example.doctors.view.screens
 
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.*
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.*
-import androidx.compose.ui.draw.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.*
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.doctors.R
@@ -29,30 +41,201 @@ fun LoginScreen(
     navController: NavHostController,
     viewModel: AuthViewModel = viewModel()
 ) {
+    // --- STATE MANAGEMENT ---
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isPasswordVisible by remember { mutableStateOf(false) }
 
-    // --- ANIMATION STATE ---
+    val authState = viewModel.state
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    // --- NAVIGATION LOGIC ---
+    LaunchedEffect(authState.isAuthenticated) {
+        if (authState.isAuthenticated) {
+            navController.navigate(Routes.DASHBOARD) {
+                popUpTo(Routes.LOGIN) { inclusive = true }
+            }
+            viewModel.clearStateFlags()
+        }
+    }
+
+    // --- ANIMATION SETUP ---
     var isVisible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { isVisible = true }
 
-    val alpha by animateFloatAsState(targetValue = if (isVisible) 1f else 0f, animationSpec = tween(1000), label = "fade")
-    val translateY by animateDpAsState(targetValue = if (isVisible) 0.dp else 180.dp, animationSpec = tween(1000), label = "float")
+    val alpha by animateFloatAsState(
+        targetValue = if (isVisible) 1f else 0f,
+        animationSpec = tween(1000), label = "fade"
+    )
+    val translateY by animateDpAsState(
+        targetValue = if (isVisible) 0.dp else 180.dp,
+        animationSpec = tween(1000), label = "float"
+    )
 
-    Box(modifier = Modifier.fillMaxSize().background(PrimaryBlue)) {
-        // Decorative Shapes
-        Box(modifier = Modifier.size(200.dp).offset(x = (-50).dp, y = (-50).dp).background(Color.White.copy(0.1f), CircleShape))
-        Box(modifier = Modifier.size(150.dp).align(Alignment.TopEnd).offset(x = 40.dp, y = 20.dp).background(Color.White.copy(0.1f), CircleShape))
-
-        // Static Back Button
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(start = 16.dp, top = 54.dp).clickable { navController.popBackStack() },
-            verticalAlignment = Alignment.CenterVertically
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { paddingValues ->
+        // Root Container
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(PrimaryBlue)
         ) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = Color.White, modifier = Modifier.size(22.dp))
-            Spacer(modifier = Modifier.width(6.dp))
-            Text("Back", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+            // Decorative Background Shapes
+            Box(modifier = Modifier.size(200.dp).offset(x = (-50).dp, y = (-50).dp).background(Color.White.copy(0.1f), CircleShape))
+            Box(modifier = Modifier.size(150.dp).align(Alignment.TopEnd).offset(x = 40.dp, y = 20.dp).background(Color.White.copy(0.1f), CircleShape))
+
+            // 1. BACK BUTTON (Functional)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, top = 54.dp)
+                    .clickable { navController.popBackStack() },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color.White,
+                    modifier = Modifier.size(22.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("Back", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+            }
+
+            // 2. ANIMATED CONTENT
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 110.dp)
+                    .offset(y = translateY)
+                    .alpha(alpha),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // LOGO
+                Image(
+                    painter = painterResource(id = R.drawable.whitelogo),
+                    contentDescription = "Logo",
+                    modifier = Modifier.size(90.dp)
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // WHITE CARD
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp))
+                        .background(Color.White)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 28.dp)
+                            .verticalScroll(rememberScrollState()),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Spacer(modifier = Modifier.height(30.dp))
+                        Text(
+                            text = "Welcome back",
+                            fontSize = 26.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = PrimaryBlue
+                        )
+                        Spacer(modifier = Modifier.height(28.dp))
+
+                        // EMAIL FIELD
+                        CustomInputField(
+                            value = email,
+                            onValueChange = { email = it },
+                            label = "Email Address",
+                            icon = Icons.Default.MailOutline,
+                            enabled = !authState.isLoading
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // PASSWORD FIELD
+                        CustomInputField(
+                            value = password,
+                            onValueChange = { password = it },
+                            label = "Password",
+                            icon = Icons.Default.Lock,
+                            isPassword = true,
+                            isPasswordVisible = isPasswordVisible,
+                            onTogglePassword = { isPasswordVisible = !isPasswordVisible },
+                            enabled = !authState.isLoading
+                        )
+
+                        // FORGOT PASSWORD (Fixed Logic)
+                        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                            Text(
+                                text = "Forgot password?",
+                                color = PrimaryBlue,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.clickable {
+                                    navController.navigate(Routes.FORGOT_PASSWORD)
+                                }
+                            )
+                        }
+
+                        // ERROR TEXT
+                        if (authState.error != null) {
+                            Text(
+                                text = authState.error!!,
+                                color = MaterialTheme.colorScheme.error,
+                                fontSize = 14.sp,
+                                modifier = Modifier.padding(top = 8.dp)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(32.dp))
+
+                        // LOGIN BUTTON (With Loading State)
+                        Button(
+                            onClick = {
+                                if (email.isBlank() || password.isBlank()) {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar("Please enter all fields")
+                                    }
+                                } else {
+                                    viewModel.login(email.trim(), password)
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth().height(56.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            enabled = !authState.isLoading,
+                            colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
+                        ) {
+                            if (authState.isLoading) {
+                                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                            } else {
+                                Text("Sign in", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
+                        GoogleSignInButton(onClick = { /* Handle Google Login */ })
+                        Spacer(modifier = Modifier.height(30.dp))
+
+                        // SIGN UP LINK (Fixed Logic)
+                        Row(modifier = Modifier.padding(bottom = 24.dp)) {
+                            Text("Don't have an account?", color = Color.Gray)
+                            Text(
+                                text = " Sign up",
+                                color = PrimaryBlue,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.clickable {
+                                    navController.navigate(Routes.REGISTER)
+                                }
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -105,7 +288,11 @@ fun GoogleSignInButton(onClick: () -> Unit) {
         shape = RoundedCornerShape(12.dp),
         border = BorderStroke(1.dp, Color.LightGray)
     ) {
-        Image(painter = painterResource(id = R.drawable.img_google_logo), contentDescription = "Google", modifier = Modifier.size(24.dp))
+        Image(
+            painter = painterResource(id = R.drawable.img_google_logo),
+            contentDescription = "Google",
+            modifier = Modifier.size(24.dp)
+        )
         Spacer(modifier = Modifier.width(10.dp))
         Text("Continue with Google", color = Color.DarkGray, fontWeight = FontWeight.SemiBold)
     }
