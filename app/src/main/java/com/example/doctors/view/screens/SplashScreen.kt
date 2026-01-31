@@ -17,7 +17,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.animation.Animatable
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 
 import com.example.doctors.R
 import com.example.doctors.navigation.Routes
@@ -143,4 +145,12 @@ fun SplashScreen(navController: NavHostController) {
                 .offset(y = (-70).dp)
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SplashScreenPreview() {
+    // We create a rememberNavController() just for the preview context
+    val navController = rememberNavController()
+    SplashScreen(navController = navController)
 }
