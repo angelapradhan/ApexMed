@@ -25,6 +25,39 @@ import com.example.doctors.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
 @Composable
+fun LoginScreen(
+    navController: NavHostController,
+    viewModel: AuthViewModel = viewModel()
+) {
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var isPasswordVisible by remember { mutableStateOf(false) }
+
+    // --- ANIMATION STATE ---
+    var isVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { isVisible = true }
+
+    val alpha by animateFloatAsState(targetValue = if (isVisible) 1f else 0f, animationSpec = tween(1000), label = "fade")
+    val translateY by animateDpAsState(targetValue = if (isVisible) 0.dp else 180.dp, animationSpec = tween(1000), label = "float")
+
+    Box(modifier = Modifier.fillMaxSize().background(PrimaryBlue)) {
+        // Decorative Shapes
+        Box(modifier = Modifier.size(200.dp).offset(x = (-50).dp, y = (-50).dp).background(Color.White.copy(0.1f), CircleShape))
+        Box(modifier = Modifier.size(150.dp).align(Alignment.TopEnd).offset(x = 40.dp, y = 20.dp).background(Color.White.copy(0.1f), CircleShape))
+
+        // Static Back Button
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(start = 16.dp, top = 54.dp).clickable { navController.popBackStack() },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = Color.White, modifier = Modifier.size(22.dp))
+            Spacer(modifier = Modifier.width(6.dp))
+            Text("Back", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+        }
+    }
+}
+
+@Composable
 fun CustomInputField(
     value: String,
     onValueChange: (String) -> Unit,
