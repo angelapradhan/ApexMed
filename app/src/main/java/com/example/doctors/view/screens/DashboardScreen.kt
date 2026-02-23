@@ -403,3 +403,68 @@ fun SectionTitle(title: String) {
     }
 }
 
+@Composable
+fun ModernBottomNav(navController: NavHostController) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(topStart = 35.dp, topEnd = 35.dp), // Thapa curve
+        color = Color.White,
+        shadowElevation = 20.dp
+    ) {
+        NavigationBar(
+            containerColor = Color.Transparent,
+            tonalElevation = 0.dp,
+            // Height lai height thapa ani padding(top) rakha jasle icon tala jharchha
+            modifier = Modifier
+                .height(90.dp)
+                .padding(top = 10.dp)
+        ) {
+            val items = listOf(
+                Triple(Icons.Default.Home, Routes.DASHBOARD, "Home"),
+                Triple(Icons.Default.Search, Routes.SEARCH, "Search"),
+                Triple(Icons.Default.Person, Routes.PROFILE, "Profile")
+            )
+
+            items.forEach { (icon, route, label) ->
+                val isSelected = currentRoute == route
+
+                NavigationBarItem(
+                    selected = isSelected,
+                    onClick = {
+                        if (currentRoute != route) {
+                            navController.navigate(route) {
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    },
+                    icon = {
+                        // Icon ko size alik thulo ra padding thapiyeko
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = label,
+                            modifier = Modifier.size(28.dp),
+                            tint = if (isSelected) Color(0xFF1976D2) else Color.LightGray
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = label,
+                            fontSize = 12.sp,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                            color = if (isSelected) Color(0xFF1976D2) else Color.Gray,
+                            modifier = Modifier.padding(top = 4.dp) // Text ra Icon ko gap
+                        )
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        indicatorColor = Color.Transparent
+                    )
+                )
+            }
+        }
+    }
+}
