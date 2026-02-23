@@ -180,3 +180,36 @@ fun DashboardScreen(
     }
 }
 
+@Composable
+fun SpecialtyRow(selectedSpec: String?, onSpecSelected: (String) -> Unit) {
+    val specialties = listOf(
+        Pair("Neurologist", Icons.Default.Info),
+        Pair("Dentist", Icons.Default.Face),
+        Pair("Psychologist", Icons.Default.Favorite),
+        Pair("ENT", Icons.Default.Call)
+    )
+    LazyRow(
+        modifier = Modifier.fillMaxWidth().height(60.dp),
+        contentPadding = PaddingValues(horizontal = 24.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        items(specialties) { spec ->
+            val isSelected = selectedSpec == spec.first
+            Surface(
+                modifier = Modifier.clip(RoundedCornerShape(30.dp)).clickable { onSpecSelected(spec.first) },
+                color = if (isSelected) Color(0xFF1976D2) else Color.White,
+                border = BorderStroke(1.dp, if (isSelected) Color(0xFF1976D2) else Color.LightGray.copy(0.4f))
+            ) {
+                Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(spec.second, null, tint = if (isSelected) Color.White else Color(0xFF1976D2), modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(spec.first, color = if (isSelected) Color.White else Color.Black, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+    }
+}
+
+// --- REST OF THE COMPONENTS (No changes here, just for completeness) ---
+
