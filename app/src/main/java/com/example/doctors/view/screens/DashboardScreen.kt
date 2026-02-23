@@ -368,3 +368,38 @@ fun MainSpecialistCard(doctor: Specialist, navController: NavHostController) {
     }
 }
 
+@Composable
+fun SmallGlassyBox(title: String, subtitle: String, icon: ImageVector) {
+    Surface(
+        color = Color.White.copy(alpha = 0.6f),
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.width(95.dp)
+    ) {
+        Column(modifier = Modifier.padding(8.dp)) {
+            Icon(icon, null, modifier = Modifier.size(14.dp), tint = Color.Gray)
+            Text(title, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+            Text(subtitle, fontSize = 8.sp, color = Color.Gray)
+        }
+    }
+}
+
+@Composable
+fun GlassyInfoBox(title: String, subtitle: String, icon: ImageVector) {
+    Surface(color = Color.White.copy(alpha = 0.6f), shape = RoundedCornerShape(20.dp), modifier = Modifier.width(115.dp)) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp), tint = Color.Gray)
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(title, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+            Text(subtitle, fontSize = 9.sp, color = Color.Gray)
+        }
+    }
+}
+
+@Composable
+fun SectionTitle(title: String) {
+    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+        Text(title, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text("See All", color = LoginBlue, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+    }
+}
+
