@@ -305,3 +305,15 @@ fun UpcomingAppointmentCard(appointment: com.example.doctors.model.Appointment) 
 }
 
 // --- Empty State UI ---
+@Composable
+fun EmptyBookingState() {
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White.copy(0.4f))
+    ) {
+        Box(modifier = Modifier.fillMaxWidth().height(100.dp), contentAlignment = Alignment.Center) {
+            Text("No Upcoming Appointments", color = Color.White, fontWeight = FontWeight.Medium)
+        }
+    }
+}
