@@ -317,3 +317,54 @@ fun EmptyBookingState() {
         }
     }
 }
+@Composable
+fun MainSpecialistCard(doctor: Specialist, navController: NavHostController) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 12.dp)
+            .clickable { navController.navigate("doctor_detail/${doctor.id}") },
+        shape = RoundedCornerShape(32.dp),
+        colors = CardDefaults.cardColors(containerColor = SpecialistCardBg)
+    ) {
+        Box(modifier = Modifier.fillMaxWidth().height(260.dp)) { // Card ko height fix gareko
+
+            // Image Section (Sabai ko lagi eutai size)
+            Image(
+                painter = painterResource(id = doctor.imageRes),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(190.dp, 240.dp) // Yaha size fix garepachi sabai doctor eutai dekhinchhan
+                    .align(Alignment.BottomEnd)
+                    .offset(x = 10.dp),
+                contentScale = ContentScale.Fit
+            )
+
+            // Content Section
+            Column(modifier = Modifier.padding(24.dp).fillMaxHeight()) {
+                // Online Badge
+                Surface(color = Color.White.copy(alpha = 0.9f), shape = RoundedCornerShape(20.dp)) {
+                    Row(modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Box(modifier = Modifier.size(6.dp).background(Color(0xFF4CAF50), CircleShape))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Online", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(doctor.type, color = Color.Gray, fontSize = 13.sp)
+                Text(doctor.name, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                Text("${doctor.price} /session", fontWeight = FontWeight.ExtraBold, fontSize = 16.sp, color = Color.Black)
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                // Glassy Info Boxes
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    SmallGlassyBox(doctor.rating, "Rating", Icons.Default.Star)
+                    SmallGlassyBox(doctor.degree, "Degree", Icons.Default.CheckCircle)
+                }
+            }
+        }
+    }
+}
+
