@@ -255,3 +255,53 @@ fun TopHeaderSection(user: com.example.doctors.model.User?, navController: NavHo
     }
 }
 
+// --- Dynamic Appointment Card ---
+@Composable
+fun UpcomingAppointmentCard(appointment: com.example.doctors.model.Appointment) {
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                // Doctor ko image dynamic
+                Image(
+                    painter = painterResource(id = appointment.imageRes),
+                    contentDescription = null,
+                    modifier = Modifier.size(50.dp).clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(appointment.doctorName, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(appointment.doctorType, color = Color.Gray, fontSize = 13.sp)
+                }
+                Text("View", color = LoginBlue, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            }
+            Spacer(modifier = Modifier.height(15.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.DateRange, null, tint = LoginBlue, modifier = Modifier.size(16.dp))
+                    Text(" ${appointment.date}", fontSize = 12.sp, color = Color.Gray)
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.PlayArrow, null, tint = LoginBlue, modifier = Modifier.size(16.dp))
+                    Text(" ${appointment.time}", fontSize = 12.sp, color = Color.Gray)
+                }
+            }
+            Spacer(modifier = Modifier.height(15.dp))
+            Button(
+                onClick = {},
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = LoginBlue),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Join Now", color = Color.White)
+            }
+        }
+    }
+}
+
+// --- Empty State UI ---
