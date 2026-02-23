@@ -213,3 +213,45 @@ fun SpecialtyRow(selectedSpec: String?, onSpecSelected: (String) -> Unit) {
 
 // --- REST OF THE COMPONENTS (No changes here, just for completeness) ---
 
+@Composable
+fun TopHeaderSection(user: com.example.doctors.model.User?, navController: NavHostController) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 20.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            AsyncImage(
+                model = user?.profileImageUrl ?: R.drawable.profile,
+                contentDescription = "Profile",
+                modifier = Modifier.size(55.dp).clip(CircleShape).border(2.dp, Color.White, CircleShape),
+                contentScale = ContentScale.Crop,
+                placeholder = painterResource(R.drawable.profile),
+                error = painterResource(R.drawable.profile)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Column {
+                Text(text = if (user != null) "Hi, ${user.firstName}" else "Welcome Back!", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.LocationOn, null, tint = Color.White.copy(0.8f), modifier = Modifier.size(14.dp))
+                    Text("Dubai, Marina, UAE", color = Color.White.copy(0.8f), fontSize = 12.sp)
+                }
+            }
+        }
+        Box(
+            modifier = Modifier
+                .size(45.dp)
+                .background(Color.White.copy(0.2f), CircleShape)
+                .clip(CircleShape)
+                .clickable { navController.navigate(Routes.NOTIFICATIONS) },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(Icons.Default.Notifications, contentDescription = "Notifications", tint = Color.White)
+            // Sano indicator dot
+            Box(
+                modifier = Modifier.size(8.dp).background(Color.Red, CircleShape).align(Alignment.TopEnd).offset(x = (-2).dp, y = 2.dp)
+            )
+        }
+    }
+}
+
