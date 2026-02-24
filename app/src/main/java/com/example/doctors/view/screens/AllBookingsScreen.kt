@@ -131,3 +131,24 @@ fun AllBookingsScreen(navController: NavHostController, authViewModel: AuthViewM
     }
 }
 
+// Custom Tab Item (Reference image ko 'Kudos' style)
+@Composable
+fun CustomTabItem(title: String, isSelected: Boolean, modifier: Modifier, onClick: () -> Unit) {
+    Surface(
+        modifier = modifier
+            .fillMaxHeight()
+            .clip(RoundedCornerShape(23.dp))
+            .clickable { onClick() },
+        color = if (isSelected) Color.White else Color.Transparent,
+        shadowElevation = if (isSelected) 4.dp else 0.dp
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Text(
+                text = title,
+                fontSize = 14.sp,
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                color = if (isSelected) Color(0xFF1976D2) else Color.White
+            )
+        }
+    }
+}
