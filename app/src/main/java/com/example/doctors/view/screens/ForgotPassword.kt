@@ -255,3 +255,53 @@ fun ForgotPasswordField(
     }
 }
 
+// --- UPDATED EmailSentConfirmation (Milaune part) ---
+@Composable
+fun EmailSentConfirmation(onCheckEmailClick: () -> Unit, primaryColor: Color) {
+    // Illustration (Aghi ko jastai consistent)
+    Image(
+        painter = painterResource(id = R.drawable.img_secure_lock),
+        contentDescription = "Secure Link Illustration",
+        modifier = Modifier.size(150.dp)
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    Text(
+        text = "Secure Link Sent",
+        fontSize = 24.sp,
+        fontWeight = FontWeight.Bold,
+        color = primaryColor
+    )
+
+    Spacer(modifier = Modifier.height(12.dp))
+
+    // --- UPDATED TEXT WITH BOTH OPTIONS ---
+    Text(
+        text = "Check your email! You can reset your password directly by clicking the link, or copy the confirmation code (oobCode) from the link and paste it here to reset within the app.",
+        fontSize = 15.sp,
+        textAlign = TextAlign.Center,
+        color = Color.Gray,
+        lineHeight = 22.sp,
+        modifier = Modifier.padding(horizontal = 12.dp)
+    )
+
+    Spacer(modifier = Modifier.height(48.dp))
+
+    Button(
+        onClick = onCheckEmailClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
+    ) {
+        Text(
+            "I Have the Code / Reset in App",
+            fontSize = 17.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Color.White
+        )
+    }
+}
+
