@@ -305,3 +305,96 @@ fun EmailSentConfirmation(onCheckEmailClick: () -> Unit, primaryColor: Color) {
     }
 }
 
+@Composable
+fun ResetPasswordScreen(
+    onResetPasswordClick: (code: String, newPassword: String) -> Unit,
+    isLoading: Boolean,
+    primaryColor: Color
+) {
+    var resetCode by remember { mutableStateOf("") }
+    var newPassword by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var newPasswordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
+
+    Image(
+        painter = painterResource(id = R.drawable.img_secure_lock),
+        contentDescription = "Reset Password Illustration",
+        modifier = Modifier.size(150.dp)
+    )
+    Spacer(modifier = Modifier.height(16.dp))
+
+    Text(
+        text = "Paste the confirmation code from the email link below to reset your password.",
+        fontSize = 16.sp,
+        textAlign = TextAlign.Center,
+        color = Color.Gray
+    )
+    Spacer(modifier = Modifier.height(32.dp))
+
+    OutlinedTextField(
+        value = resetCode,
+        onValueChange = { resetCode = it },
+        label = { Text("Confirmation Code") },
+        leadingIcon = { Icon(Icons.Default.MailOutline, contentDescription = "Code") },
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        enabled = !isLoading
+    )
+    Spacer(modifier = Modifier.height(16.dp))
+
+    OutlinedTextField(
+        value = newPassword,
+        onValueChange = { newPassword = it },
+        label = { Text("New Password") },
+        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "New Password") },
+        visualTransformation = if (newPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+        trailingIcon = {
+            val image = if (newPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+            IconButton(onClick = { newPasswordVisible = !newPasswordVisible }) {
+                Icon(imageVector = image, contentDescription = null)
+            }
+        },
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        enabled = !isLoading
+    )
+    Spacer(modifier = Modifier.height(16.dp))
+
+    OutlinedTextField(
+        value = confirmPassword,
+        onValueChange = { confirmPassword = it },
+        label = { Text("Confirm New Password") },
+        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Confirm New Password") },
+        visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+        trailingIcon = {
+            val image = if (confirmPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+            IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                Icon(imageVector = image, contentDescription = null)
+            }
+        },
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        enabled = !isLoading,
+        isError = newPassword != confirmPassword && confirmPassword.isNotEmpty()
+    )
+    Spacer(modifier = Modifier.height(32.dp))
+
+    Button(
+        onClick = {
+            if (newPassword == confirmPassword && resetCode.isNotEmpty()) {
+                onResetPasswordClick(resetCode.trim(), newPassword)
+            }
+        },
+        modifier = Modifier.fillMaxWidth().height(56.dp),
+        shape = RoundedCornerShape(12.dp),
+        enabled = !isLoading && newPassword.isNotEmpty() && confirmPassword.isNotEmpty() && newPassword == confirmPassword,
+        colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
+    ) {
+        if (isLoading) {
+            CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+        } else {
+            Text("Reset Password", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+        }
+    }
+}
