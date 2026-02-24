@@ -203,3 +203,55 @@ fun ForgotPasswordScreen(
     }
 }
 
+@Composable
+fun ForgotPasswordField(
+    emailOrPhone: String,
+    onValueChange: (String) -> Unit,
+    onLoginClick: () -> Unit,
+    isLoading: Boolean,
+    primaryColor: Color
+) {
+    Image(
+        painter = painterResource(id = R.drawable.img_secure_lock),
+        contentDescription = "Forgot Password Illustration",
+        modifier = Modifier.size(150.dp)
+    )
+    Spacer(modifier = Modifier.height(16.dp))
+
+    Text(
+        text = "Provide your username or email, and we'll send you a secure link to confirm your identity.",
+        fontSize = 16.sp,
+        textAlign = TextAlign.Center,
+        color = Color.Gray
+    )
+    Spacer(modifier = Modifier.height(32.dp))
+
+    OutlinedTextField(
+        value = emailOrPhone,
+        onValueChange = onValueChange,
+        label = { Text("Enter email or phone number") },
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        enabled = !isLoading,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = primaryColor,
+            unfocusedBorderColor = Color.LightGray
+        )
+    )
+    Spacer(modifier = Modifier.height(48.dp))
+
+    Button(
+        onClick = onLoginClick,
+        modifier = Modifier.fillMaxWidth().height(56.dp),
+        shape = RoundedCornerShape(12.dp),
+        enabled = !isLoading && emailOrPhone.isNotEmpty(),
+        colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
+    ) {
+        if (isLoading) {
+            CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+        } else {
+            Text("Send Link", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+        }
+    }
+}
+
