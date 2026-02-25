@@ -182,3 +182,11 @@ fun ProfileScreen(navController: NavHostController, authViewModel: AuthViewModel
         }
     }
 }
+
+// Helpers
+data class MenuData(
+    val title: String,
+    val icon: ImageVector,
+    val isDangerous: Boolean = false,
+    val onClick: () -> Unit = {} // Default khali hunchha
+)
