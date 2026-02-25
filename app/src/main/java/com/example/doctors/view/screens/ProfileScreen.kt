@@ -201,3 +201,61 @@ fun SectionHeader(title: String) {
         modifier = Modifier.padding(top = 24.dp, bottom = 12.dp, start = 4.dp)
     )
 }
+
+@Composable
+fun ProfileMenuCard(items: List<MenuData>) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.9f))
+    ) {
+        Column {
+            items.forEachIndexed { index, item ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { item.onClick() } // <--- Yo function call huna jaruri chha
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(
+                                if (item.isDangerous) Color.Red.copy(alpha = 0.1f)
+                                else LoginBlue.copy(alpha = 0.1f),
+                                RoundedCornerShape(12.dp)
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = item.icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = if (item.isDangerous) Color.Red else LoginBlue
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Text(
+                        text = item.title,
+                        modifier = Modifier.weight(1f),
+                        fontWeight = FontWeight.Medium,
+                        color = if (item.isDangerous) Color.Red else Color.Black
+                    )
+
+                    Icon(Icons.Default.KeyboardArrowRight, null, tint = Color.LightGray)
+                }
+
+                if (index < items.size - 1) {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        thickness = 0.5.dp,
+                        color = Color.LightGray.copy(alpha = 0.3f)
+                    )
+                }
+            }
+        }
+    }
+}
