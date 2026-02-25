@@ -190,3 +190,14 @@ data class MenuData(
     val isDangerous: Boolean = false,
     val onClick: () -> Unit = {} // Default khali hunchha
 )
+
+@Composable
+fun SectionHeader(title: String) {
+    Text(
+        text = title,
+        fontSize = 16.sp,
+        fontWeight = FontWeight.Bold,
+        color = Color.Gray,
+        modifier = Modifier.padding(top = 24.dp, bottom = 12.dp, start = 4.dp)
+    )
+}
