@@ -3,13 +3,11 @@ package com.example.doctors.view.screens
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -22,16 +20,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -56,18 +49,17 @@ fun LoginScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // --- DASHBOARD NAVIGATION LOGIC (FIXED) ---
+    // dashboard navigation
     LaunchedEffect(authState.isAuthenticated) {
         if (authState.isAuthenticated) {
             navController.navigate(Routes.DASHBOARD) {
-                // Login screen lai backstack bata hataune taki user back garda feri login ma na-aayos
                 popUpTo(Routes.LOGIN) { inclusive = true }
             }
             viewModel.clearStateFlags()
         }
     }
 
-    // Entrance Animation
+    // entrance animation
     var isVisible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { isVisible = true }
     val alpha by animateFloatAsState(targetValue = if (isVisible) 1f else 0f, animationSpec = tween(1000), label = "")
@@ -78,7 +70,7 @@ fun LoginScreen(
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize().padding(paddingValues).background(Color.White)) {
 
-            // 1. BACKGROUND IMAGE & LOGO
+            // background image and logo
             Box(modifier = Modifier.fillMaxWidth().height(320.dp)) {
                 Image(
                     painter = painterResource(id = R.drawable.background),
@@ -87,7 +79,7 @@ fun LoginScreen(
                     contentScale = ContentScale.Crop
                 )
 
-                // Back Button
+                // back button
                 IconButton(
                     onClick = { navController.popBackStack() },
                     modifier = Modifier.padding(start = 12.dp, top = 40.dp)
@@ -95,19 +87,19 @@ fun LoginScreen(
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = Color.White)
                 }
 
-                // LOGO - On Top of Image
+                // logo
                 Image(
                     painter = painterResource(id = R.drawable.apexmed_logo),
                     contentDescription = "Logo",
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .padding(bottom = 65.dp)
-                        .size(90.dp),
+                        .size(130.dp),
                     contentScale = ContentScale.Fit
                 )
             }
 
-            // 2. WHITE CARD CONTENT
+            // white card
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -158,7 +150,7 @@ fun LoginScreen(
                             enabled = !authState.isLoading
                         )
 
-                        // FORGOT PASSWORD
+                        // forget password
                         Box(modifier = Modifier.fillMaxWidth().padding(top = 12.dp), contentAlignment = Alignment.CenterEnd) {
                             Text(
                                 "Forgot Password?",
@@ -170,7 +162,7 @@ fun LoginScreen(
 
                         Spacer(modifier = Modifier.height(35.dp))
 
-                        // SIGN IN BUTTON
+                        // sign in button
                         Button(
                             onClick = {
                                 if (email.isNotBlank() && password.isNotBlank()) {
@@ -191,15 +183,15 @@ fun LoginScreen(
                             }
                         }
 
-                        // ERROR MESSAGE (Optional display)
+                        // error mssg
                         if (authState.error != null) {
                             Text(authState.error!!, color = Color.Red, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
                         }
 
                         Spacer(modifier = Modifier.height(24.dp))
-                        GoogleSignInButton(onClick = { /* Google Login Logic */ })
 
-                        // Sign Up Link
+
+                        // sign up link
                         Row(modifier = Modifier.padding(vertical = 30.dp)) {
                             Text("Don't have an account?", color = Color.Gray)
                             Text(
@@ -216,7 +208,6 @@ fun LoginScreen(
     }
 }
 
-// Reusable Components
 @Composable
 fun CustomInputField(
     value: String,
@@ -255,244 +246,3 @@ fun CustomInputField(
         singleLine = true
     )
 }
-
-@Composable
-fun GoogleSignInButton(onClick: () -> Unit) {
-    OutlinedButton(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth().height(56.dp),
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, Color.LightGray)
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.img_google_logo),
-            contentDescription = "Google",
-            modifier = Modifier.size(24.dp)
-        )
-        Spacer(modifier = Modifier.width(12.dp))
-        Text("Continue with Google", color = Color.DarkGray, fontWeight = FontWeight.SemiBold)
-    }
-}
-
-//
-//@Composable
-//fun LoginScreen(
-//    navController: NavHostController,
-//    viewModel: AuthViewModel = viewModel()
-//) {
-//    var email by remember { mutableStateOf("") }
-//    var password by remember { mutableStateOf("") }
-//    var isPasswordVisible by remember { mutableStateOf(false) }
-//
-//    val authState = viewModel.state
-//    val snackbarHostState = remember { SnackbarHostState() }
-//    val scope = rememberCoroutineScope()
-//
-//    // navigation
-//    LaunchedEffect(authState.isAuthenticated) {
-//        if (authState.isAuthenticated) {
-//            navController.navigate(Routes.DASHBOARD) {
-//                popUpTo(Routes.LOGIN) { inclusive = true }
-//            }
-//            viewModel.clearStateFlags()
-//        }
-//    }
-//
-//    Scaffold(
-//        snackbarHost = { SnackbarHost(snackbarHostState) },
-//        containerColor = Color.White
-//    ) { paddingValues ->
-//
-//        Column(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .padding(paddingValues)
-//                .padding(horizontal = 24.dp),
-//            horizontalAlignment = Alignment.Start
-//        ) {
-//            Spacer(modifier = Modifier.height(35.dp))
-//
-//            // logo and name
-//            Row(
-//                verticalAlignment = Alignment.CenterVertically,
-//                modifier = Modifier.fillMaxWidth()
-//            ) {
-//                Image(
-//                    painter = painterResource(id = R.drawable.apexmed_logo),
-//                    contentDescription = "ApexMed Logo",
-//                    modifier = Modifier.size(60.dp)
-//                )
-//                Spacer(modifier = Modifier.width(8.dp))
-//                Text(
-//                    text = "ApexMed",
-//                    fontSize = 22.sp,
-//                    fontWeight = FontWeight.Bold,
-//                    color = PrimaryBlue
-//                )
-//            }
-//
-//            Spacer(modifier = Modifier.height(32.dp))
-//
-//            // header
-//            Text(
-//                text = "Log In",
-//                fontSize = 28.sp,
-//                fontWeight = FontWeight.Bold,
-//                color = Color.Black
-//            )
-//            Spacer(modifier = Modifier.height(8.dp))
-//            Text(
-//                text = "Welcome back! Please enter your details.",
-//                fontSize = 16.sp,
-//                color = Color.Gray
-//            )
-//
-//            Spacer(modifier = Modifier.height(32.dp))
-//
-//            // email
-//            OutlinedTextField(
-//                value = email,
-//                onValueChange = { email = it },
-//                label = { Text("Email Address") },
-//                leadingIcon = { Icon(Icons.Default.MailOutline, contentDescription = "Email") },
-//                modifier = Modifier.fillMaxWidth(),
-//                shape = RoundedCornerShape(10.dp),
-//                singleLine = true,
-//                enabled = !authState.isLoading
-//            )
-//            Spacer(modifier = Modifier.height(16.dp))
-//
-//            // password
-//            OutlinedTextField(
-//                value = password,
-//                onValueChange = { password = it },
-//                label = { Text("Password") },
-//                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Password") },
-//                trailingIcon = {
-//                    IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
-//                        Icon(
-//                            imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-//                            contentDescription = if (isPasswordVisible) "Hide password" else "Show password"
-//                        )
-//                    }
-//                },
-//                visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-//                modifier = Modifier.fillMaxWidth(),
-//                shape = RoundedCornerShape(10.dp),
-//                singleLine = true,
-//                enabled = !authState.isLoading
-//            )
-//            Spacer(modifier = Modifier.height(8.dp))
-//
-//            // forget password
-//            Text(
-//                text = "Forgot Password?",
-//                color = PrimaryBlue,
-//                modifier = Modifier
-//                    .align(Alignment.End)
-//                    .clickable { navController.navigate(Routes.FORGOT_PASSWORD) },
-//                fontSize = 14.sp
-//            )
-//            Spacer(modifier = Modifier.height(32.dp))
-//
-//            // error display garne
-//            if (authState.error != null) {
-//                Text(
-//                    text = authState.error!!,
-//                    color = MaterialTheme.colorScheme.error,
-//                    fontSize = 14.sp,
-//                    modifier = Modifier.padding(bottom = 8.dp)
-//                )
-//                LaunchedEffect(authState.error) {
-//                    viewModel.clearStateFlags()
-//                }
-//            }
-//
-//
-//            // login button
-//            Button(
-//                onClick = {
-//                    if (email.isBlank() || password.isBlank()) {
-//                        scope.launch {
-//                            snackbarHostState.showSnackbar(
-//                                message = "Please enter both email and password.",
-//                                duration = SnackbarDuration.Short
-//                            )
-//                        }
-//                    } else {
-//                        viewModel.login(email.trim(), password)
-//                    }
-//                },
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .height(56.dp),
-//                shape = RoundedCornerShape(12.dp),
-//                enabled = !authState.isLoading,
-//                colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
-//            ) {
-//                if (authState.isLoading) {
-//                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-//                } else {
-//                    Text("Login", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-//                }
-//            }
-//
-//            Spacer(modifier = Modifier.height(24.dp))
-//
-//            // divider and google login
-//            Row(
-//                modifier = Modifier.fillMaxWidth(),
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                Divider(modifier = Modifier.weight(1f), color = Color.LightGray)
-//                Text(" OR ", color = Color.Gray, modifier = Modifier.padding(horizontal = 8.dp))
-//                Divider(modifier = Modifier.weight(1f), color = Color.LightGray)
-//            }
-//            Spacer(modifier = Modifier.height(24.dp))
-//
-//            GoogleSignInButton(onClick = { /* Google Sign in ko code */ })
-//
-//            Spacer(modifier = Modifier.weight(1f))
-//
-//            // sign up link
-//            Row(
-//                verticalAlignment = Alignment.CenterVertically,
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(bottom = 16.dp),
-//                horizontalArrangement = Arrangement.Center
-//            ) {
-//                Text("Don't have an account?")
-//                Spacer(modifier = Modifier.width(4.dp))
-//                Text(
-//                    text = "Sign up",
-//                    color = PrimaryBlue,
-//                    fontWeight = FontWeight.Bold,
-//                    modifier = Modifier.clickable { navController.navigate(Routes.REGISTER) }
-//                )
-//            }
-//        }
-//    }
-//}
-//
-//// google sign in button
-//@Composable
-//fun GoogleSignInButton(onClick: () -> Unit) {
-//    OutlinedButton(
-//        onClick = onClick,
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .height(56.dp),
-//        shape = RoundedCornerShape(10.dp),
-//        border = BorderStroke(1.dp, Color.LightGray),
-//        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.DarkGray)
-//    ) {
-//        Image(
-//            painter = painterResource(id = R.drawable.img_google_logo),
-//            contentDescription = "Google Logo",
-//            modifier = Modifier.size(45.dp)
-//        )
-//        Spacer(modifier = Modifier.width(10.dp))
-//        Text("Continue with Google", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-//    }
-//}
