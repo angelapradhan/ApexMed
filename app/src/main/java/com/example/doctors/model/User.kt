@@ -6,9 +6,12 @@ data class User(
     val firstName : String = "",
     val lastName : String = "",
     val contact : String = "",
+    val userName: String = "",
     val dob : String = "",
-    val isDoctor: Boolean = false
+    val isDoctor: Boolean = false,
+    val profileImageUrl: String = ""
 ){
+    // Converts object to map for database storage
     fun toMap() : Map<String,Any?>{
         return mapOf(
             "userId" to userId,
@@ -17,7 +20,8 @@ data class User(
             "lastName" to lastName,
             "contact" to contact,
             "dob" to dob,
-            "isDoctor" to isDoctor
+            "isDoctor" to isDoctor,
+            "profileImageUrl" to profileImageUrl
         )
     }
 }
