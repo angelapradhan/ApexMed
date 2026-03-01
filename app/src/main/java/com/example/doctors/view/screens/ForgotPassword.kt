@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -27,7 +26,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -36,32 +34,25 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.doctors.R
+import com.example.doctors.model.PasswordResetStep
 import com.example.doctors.navigation.Routes
 import com.example.doctors.ui.theme.PrimaryBlue
 import com.example.doctors.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
-
-
-enum class PasswordResetStep {
-    FORGOT_PASSWORD,
-    EMAIL_SENT,
-
-    RESET_PASSWORD
-}
 
 @Composable
 fun ForgotPasswordScreen(
     navController: NavHostController,
     viewModel: AuthViewModel = viewModel()
 ) {
+    // State
     var currentStep by remember { mutableStateOf(PasswordResetStep.FORGOT_PASSWORD) }
     var emailOrPhone by remember { mutableStateOf("") }
-
     val authState = viewModel.state
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // --- NAVIGATION LOGIC (Original) ---
+    // Handle link sent
     LaunchedEffect(authState.resetEmailSent) {
         if (authState.resetEmailSent) {
             currentStep = PasswordResetStep.EMAIL_SENT
@@ -69,15 +60,17 @@ fun ForgotPasswordScreen(
         }
     }
 
+    // Handle errors
     LaunchedEffect(authState.error) {
-        if (authState.error != null) {
+        authState.error?.let {
             scope.launch {
-                snackbarHostState.showSnackbar(message = authState.error!!, duration = SnackbarDuration.Short)
+                snackbarHostState.showSnackbar(message = it, duration = SnackbarDuration.Short)
                 viewModel.clearStateFlags()
             }
         }
     }
 
+    // Handle reset success
     LaunchedEffect(authState.passwordResetSuccessful) {
         if (authState.passwordResetSuccessful) {
             scope.launch {
@@ -90,30 +83,25 @@ fun ForgotPasswordScreen(
         }
     }
 
-    // --- ADDED ANIMATION (For consistency with Login) ---
+    // animation
     var isVisible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { isVisible = true }
-
-    val alpha by animateFloatAsState(targetValue = if (isVisible) 1f else 0f, animationSpec = tween  (1000), label = "fade")
+    val alpha by animateFloatAsState(targetValue = if (isVisible) 1f else 0f, animationSpec = tween(1000), label = "fade")
     val translateY by animateDpAsState(targetValue = if (isVisible) 0.dp else 180.dp, animationSpec = tween(1000), label = "float")
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
-        // Root Container with Blue Background and Circles
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(PrimaryBlue)
         ) {
-            // Decorative Circles
-            Box(modifier = Modifier.size(200.dp).offset(x = (-50).dp, y = (-50).dp).background(Color.White.copy(0.1f),
-                CircleShape
-            ))
+            Box(modifier = Modifier.size(200.dp).offset(x = (-50).dp, y = (-50).dp).background(Color.White.copy(0.1f), CircleShape))
             Box(modifier = Modifier.size(150.dp).align(Alignment.TopEnd).offset(x = 40.dp, y = 20.dp).background(Color.White.copy(0.1f), CircleShape))
 
-            // TOP NAVIGATION BAR
+            // Back button
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -150,13 +138,13 @@ fun ForgotPasswordScreen(
                 )
             }
 
-            // FLOATING CONTENT CARD
+            // Main content card
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = 110.dp)
-                    .offset(y = translateY) // Slide animation
-                    .alpha(alpha),           // Fade animation
+                    .offset(y = translateY)
+                    .alpha(alpha),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(
@@ -172,7 +160,7 @@ fun ForgotPasswordScreen(
                             .verticalScroll(rememberScrollState()),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        // Renders your original logic/UI based on step
+                        // Content steps
                         when (currentStep) {
                             PasswordResetStep.FORGOT_PASSWORD -> ForgotPasswordField(
                                 emailOrPhone = emailOrPhone,
@@ -197,12 +185,12 @@ fun ForgotPasswordScreen(
                         }
                     }
                 }
-
             }
         }
     }
 }
 
+// input email/phone
 @Composable
 fun ForgotPasswordField(
     emailOrPhone: String,
@@ -255,28 +243,17 @@ fun ForgotPasswordField(
     }
 }
 
-// --- UPDATED EmailSentConfirmation (Milaune part) ---
+// confirmation
 @Composable
 fun EmailSentConfirmation(onCheckEmailClick: () -> Unit, primaryColor: Color) {
-    // Illustration (Aghi ko jastai consistent)
     Image(
         painter = painterResource(id = R.drawable.img_secure_lock),
         contentDescription = "Secure Link Illustration",
         modifier = Modifier.size(150.dp)
     )
-
     Spacer(modifier = Modifier.height(16.dp))
-
-    Text(
-        text = "Secure Link Sent",
-        fontSize = 24.sp,
-        fontWeight = FontWeight.Bold,
-        color = primaryColor
-    )
-
+    Text(text = "Secure Link Sent", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = primaryColor)
     Spacer(modifier = Modifier.height(12.dp))
-
-    // --- UPDATED TEXT WITH BOTH OPTIONS ---
     Text(
         text = "Check your email! You can reset your password directly by clicking the link, or copy the confirmation code (oobCode) from the link and paste it here to reset within the app.",
         fontSize = 15.sp,
@@ -285,26 +262,18 @@ fun EmailSentConfirmation(onCheckEmailClick: () -> Unit, primaryColor: Color) {
         lineHeight = 22.sp,
         modifier = Modifier.padding(horizontal = 12.dp)
     )
-
     Spacer(modifier = Modifier.height(48.dp))
-
     Button(
         onClick = onCheckEmailClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp),
+        modifier = Modifier.fillMaxWidth().height(56.dp),
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
     ) {
-        Text(
-            "I Have the Code / Reset in App",
-            fontSize = 17.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = Color.White
-        )
+        Text("I Have the Code / Reset in App", fontSize = 17.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
     }
 }
 
+// password reset form
 @Composable
 fun ResetPasswordScreen(
     onResetPasswordClick: (code: String, newPassword: String) -> Unit,
@@ -315,7 +284,7 @@ fun ResetPasswordScreen(
     var newPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var newPasswordVisible by remember { mutableStateOf(false) }
-    var confirmPasswordVisible by remember { mutableStateOf(false) }
+    var actualConfirmPasswordVisible by remember { mutableStateOf(false) }
 
     Image(
         painter = painterResource(id = R.drawable.img_secure_lock),
@@ -323,7 +292,6 @@ fun ResetPasswordScreen(
         modifier = Modifier.size(150.dp)
     )
     Spacer(modifier = Modifier.height(16.dp))
-
     Text(
         text = "Paste the confirmation code from the email link below to reset your password.",
         fontSize = 16.sp,
@@ -332,6 +300,7 @@ fun ResetPasswordScreen(
     )
     Spacer(modifier = Modifier.height(32.dp))
 
+    // Code input
     OutlinedTextField(
         value = resetCode,
         onValueChange = { resetCode = it },
@@ -343,6 +312,7 @@ fun ResetPasswordScreen(
     )
     Spacer(modifier = Modifier.height(16.dp))
 
+    // Password input
     OutlinedTextField(
         value = newPassword,
         onValueChange = { newPassword = it },
@@ -361,15 +331,16 @@ fun ResetPasswordScreen(
     )
     Spacer(modifier = Modifier.height(16.dp))
 
+    // Confirm password input
     OutlinedTextField(
         value = confirmPassword,
         onValueChange = { confirmPassword = it },
         label = { Text("Confirm New Password") },
         leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Confirm New Password") },
-        visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+        visualTransformation = if (actualConfirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
         trailingIcon = {
-            val image = if (confirmPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-            IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+            val image = if (actualConfirmPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+            IconButton(onClick = { actualConfirmPasswordVisible = !actualConfirmPasswordVisible }) {
                 Icon(imageVector = image, contentDescription = null)
             }
         },
@@ -380,6 +351,7 @@ fun ResetPasswordScreen(
     )
     Spacer(modifier = Modifier.height(32.dp))
 
+    // Submit button
     Button(
         onClick = {
             if (newPassword == confirmPassword && resetCode.isNotEmpty()) {
