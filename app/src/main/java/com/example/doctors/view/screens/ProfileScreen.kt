@@ -1,9 +1,6 @@
 package com.example.doctors.view.screens
 
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,53 +14,51 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import coil.compose.rememberAsyncImagePainter
-import com.example.doctors.R
 import com.example.doctors.viewmodel.AuthViewModel
+import com.example.doctors.viewmodel.UserViewModel
 
+
+// theme colors
 val LoginBlue = Color(0xFF1976D2)
+val ThemeBlack = Color(0xFF1A1A1A)
+val MediumGrey = Color(0xFF424242)
+val SoftGrey = Color(0xFFF5F5F5)
+val DarkGrey = Color(0xFF757575)
 
 @Composable
-fun ProfileScreen(navController: NavHostController, authViewModel: AuthViewModel) {
+fun ProfileScreen(
+    navController: NavHostController,
+    userViewModel: UserViewModel,
+    authViewModel: AuthViewModel
+) {
     val context = androidx.compose.ui.platform.LocalContext.current
-    val authState = authViewModel.state
-    val user = authState.currentUser
 
-    val galleryLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let { authViewModel.uploadAndSaveProfileImage(context, it) }
-    }
+    // get user data
+    val userState = userViewModel.state
+    val user = userState.currentUser
 
-    val gradientBrush = Brush.verticalGradient(
+    // background gradient
+    val gradientBrush = androidx.compose.ui.graphics.Brush.verticalGradient(
         colors = listOf(LoginBlue.copy(alpha = 0.8f), Color.White),
         startY = 0f,
         endY = 800f
     )
 
-    // 1. YO STATE THAPNUS (Error hatauna ko lagi)
+    // dialog states
     var showAboutDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
-    // 2. Dialog lai yaha call garnus
     if (showAboutDialog) {
         AboutAppDialog(onDismiss = { showAboutDialog = false })
     }
 
-    // State management
-    var showDeleteDialog by remember { mutableStateOf(false) }
-
-    // 2. Delete Account Confirmation
-    // Delete Account Confirmation Dialog
+    // delete dialog
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
@@ -73,8 +68,7 @@ fun ProfileScreen(navController: NavHostController, authViewModel: AuthViewModel
                 TextButton(
                     onClick = {
                         showDeleteDialog = false
-                        authViewModel.deleteAccount(context) {
-                            // Exact Logout ko jastai navigation
+                        userViewModel.deleteAccount(context) {
                             navController.navigate("login") {
                                 popUpTo(0) { inclusive = true }
                             }
@@ -96,7 +90,6 @@ fun ProfileScreen(navController: NavHostController, authViewModel: AuthViewModel
 
     Scaffold(
         containerColor = Color.White,
-        // Bottom Navigation thapiyo!
         bottomBar = { ModernBottomNav(navController) }
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize()) {
@@ -104,10 +97,10 @@ fun ProfileScreen(navController: NavHostController, authViewModel: AuthViewModel
                 modifier = Modifier
                     .fillMaxSize()
                     .background(gradientBrush)
-                    .padding(paddingValues) // Navbar le content nachhopos bhannalaai
+                    .padding(paddingValues)
                     .padding(horizontal = 24.dp)
             ) {
-                // Header (Back button + Title)
+                // Header
                 item {
                     Box(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp), contentAlignment = Alignment.Center) {
                         IconButton(
@@ -118,28 +111,49 @@ fun ProfileScreen(navController: NavHostController, authViewModel: AuthViewModel
                     }
                 }
 
-                // Profile Info Card
+                // Profile Card
                 item {
-                    Card(modifier = Modifier.fillMaxWidth().padding(top = 10.dp), shape = RoundedCornerShape(32.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
-                        Column(modifier = Modifier.padding(24.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                            Box(contentAlignment = Alignment.BottomEnd) {
-                                Image(
-                                    painter = if (!user?.profileImageUrl.isNullOrEmpty()) rememberAsyncImagePainter(user?.profileImageUrl) else painterResource(id = R.drawable.profile),
+                    Card(
+                        modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                        shape = RoundedCornerShape(32.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(24.dp).fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Surface(
+                                modifier = Modifier.size(100.dp),
+                                shape = CircleShape,
+                                color = SoftGrey,
+                                border = androidx.compose.foundation.BorderStroke(1.dp, Color.LightGray)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Person,
                                     contentDescription = null,
-                                    modifier = Modifier.size(110.dp).clip(CircleShape).border(2.dp, LoginBlue.copy(0.1f), CircleShape),
-                                    contentScale = ContentScale.Crop
+                                    modifier = Modifier.padding(20.dp),
+                                    tint = MediumGrey
                                 )
-                                Box(modifier = Modifier.size(34.dp).background(LoginBlue, CircleShape).border(3.dp, Color.White, CircleShape).clickable { galleryLauncher.launch("image/*") }, contentAlignment = Alignment.Center) {
-                                    Icon(Icons.Default.CameraAlt, null, tint = Color.White, modifier = Modifier.size(18.dp))
-                                }
                             }
+
                             Spacer(modifier = Modifier.height(16.dp))
-                            Text(text = "${user?.firstName ?: "User"} ${user?.lastName ?: ""}", fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                            Text(text = user?.email ?: "email@example.com", color = Color.Gray, fontSize = 14.sp)
+
+                            Text(
+                                text = "${user?.firstName ?: "User"} ${user?.lastName ?: ""}",
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = ThemeBlack
+                            )
+                            Text(
+                                text = user?.email ?: "email@example.com",
+                                color = DarkGrey,
+                                fontSize = 14.sp
+                            )
                         }
                     }
                 }
 
+                // Menu Section: General
                 item {
                     SectionHeader("General")
                     ProfileMenuCard(listOf(
@@ -147,19 +161,18 @@ fun ProfileScreen(navController: NavHostController, authViewModel: AuthViewModel
                             navController.navigate("personal_details")
                         }),
                         MenuData("Password and security", Icons.Default.Lock, onClick = {
-                            navController.navigate("security_screen") // <--- Navigation Working!
+                            navController.navigate("security_screen")
                         }),
-                        // 1. Favourites ko satta Contact Us
                         MenuData("Contact us", Icons.Default.Call, onClick = {
                             navController.navigate("contact_us")
                         }),
-                        // 2. Notification ko satta About App
                         MenuData("About app", Icons.Default.Info, onClick = {
-                            showAboutDialog = true // Pop-up kholcha
+                            showAboutDialog = true
                         })
                     ))
                 }
 
+                // Menu Section: Account
                 item {
                     SectionHeader("Account")
                     ProfileMenuCard(items = listOf(
@@ -168,7 +181,7 @@ fun ProfileScreen(navController: NavHostController, authViewModel: AuthViewModel
                             icon = Icons.Default.Delete,
                             isDangerous = true,
                             onClick = {
-                                showDeleteDialog = true // <--- Yo line halnai parchha pop-up ko lagi!
+                                showDeleteDialog = true
                             }
                         ),
                         MenuData("Logout", Icons.Default.ExitToApp, isDangerous = true, onClick = {
@@ -188,7 +201,7 @@ data class MenuData(
     val title: String,
     val icon: ImageVector,
     val isDangerous: Boolean = false,
-    val onClick: () -> Unit = {} // Default khali hunchha
+    val onClick: () -> Unit = {}
 )
 
 @Composable
@@ -214,7 +227,7 @@ fun ProfileMenuCard(items: List<MenuData>) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { item.onClick() } // <--- Yo function call huna jaruri chha
+                        .clickable { item.onClick() }
                         .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
