@@ -41,6 +41,7 @@ fun LoginScreen(
     navController: NavHostController,
     viewModel: AuthViewModel = viewModel()
 ) {
+    // state management
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isPasswordVisible by remember { mutableStateOf(false) }
@@ -49,7 +50,7 @@ fun LoginScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // dashboard navigation
+    // navigation
     LaunchedEffect(authState.isAuthenticated) {
         if (authState.isAuthenticated) {
             navController.navigate(Routes.DASHBOARD) {
@@ -59,18 +60,18 @@ fun LoginScreen(
         }
     }
 
-    // entrance animation
+    // animation
     var isVisible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { isVisible = true }
-    val alpha by animateFloatAsState(targetValue = if (isVisible) 1f else 0f, animationSpec = tween(1000), label = "")
-    val translateY by animateDpAsState(targetValue = if (isVisible) 0.dp else 80.dp, animationSpec = tween(1000), label = "")
+    val alpha by animateFloatAsState(targetValue = if (isVisible) 1f else 0f, animationSpec = tween(1000), label = "fade")
+    val translateY by animateDpAsState(targetValue = if (isVisible) 0.dp else 80.dp, animationSpec = tween(1000), label = "slide")
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize().padding(paddingValues).background(Color.White)) {
 
-            // background image and logo
+            // bacground and logo
             Box(modifier = Modifier.fillMaxWidth().height(320.dp)) {
                 Image(
                     painter = painterResource(id = R.drawable.background),
@@ -79,7 +80,7 @@ fun LoginScreen(
                     contentScale = ContentScale.Crop
                 )
 
-                // back button
+                // back
                 IconButton(
                     onClick = { navController.popBackStack() },
                     modifier = Modifier.padding(start = 12.dp, top = 40.dp)
@@ -87,7 +88,7 @@ fun LoginScreen(
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = Color.White)
                 }
 
-                // logo
+                // Logo
                 Image(
                     painter = painterResource(id = R.drawable.apexmed_logo),
                     contentDescription = "Logo",
@@ -99,7 +100,6 @@ fun LoginScreen(
                 )
             }
 
-            // white card
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -122,11 +122,13 @@ fun LoginScreen(
                     ) {
                         Spacer(modifier = Modifier.height(35.dp))
 
+                        // Titles
                         Text("Welcome Back", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = PrimaryBlue)
                         Text("Sign in to continue", fontSize = 14.sp, color = Color.Gray)
 
                         Spacer(modifier = Modifier.height(30.dp))
 
+                        //
                         // Email Field
                         CustomInputField(
                             value = email,
@@ -150,7 +152,7 @@ fun LoginScreen(
                             enabled = !authState.isLoading
                         )
 
-                        // forget password
+                        // Forgot password link
                         Box(modifier = Modifier.fillMaxWidth().padding(top = 12.dp), contentAlignment = Alignment.CenterEnd) {
                             Text(
                                 "Forgot Password?",
@@ -162,7 +164,7 @@ fun LoginScreen(
 
                         Spacer(modifier = Modifier.height(35.dp))
 
-                        // sign in button
+                        // action button
                         Button(
                             onClick = {
                                 if (email.isNotBlank() && password.isNotBlank()) {
@@ -183,15 +185,14 @@ fun LoginScreen(
                             }
                         }
 
-                        // error mssg
+                        // Error message
                         if (authState.error != null) {
                             Text(authState.error!!, color = Color.Red, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
                         }
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-
-                        // sign up link
+                        // register link
                         Row(modifier = Modifier.padding(vertical = 30.dp)) {
                             Text("Don't have an account?", color = Color.Gray)
                             Text(
@@ -208,6 +209,7 @@ fun LoginScreen(
     }
 }
 
+// Reusable Input Field
 @Composable
 fun CustomInputField(
     value: String,
