@@ -1,7 +1,7 @@
 package com.example.doctors.model
 
 import androidx.annotation.DrawableRes
-import com.example.doctors.R // Image resources ko lagi import
+import com.example.doctors.R
 
 data class Specialist(
     val id: String,
