@@ -8,23 +8,20 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
-
 class BookingRepositoryImpl : BookingRepository {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val ref: DatabaseReference = FirebaseDatabase.getInstance().getReference("Bookings")
 
+    // Save booking to Firebase
     override fun addBooking(
         appointment: Appointment,
         callback: (Boolean, String) -> Unit
     ) {
-        // Get current user ID
         val userId = auth.currentUser?.uid ?: return callback(false, "User not logged in")
-        // Generate unique booking key
         val bookingId = ref.push().key ?: return callback(false, "Failed to generate ID")
-        // Attach IDs to data
+        // Map data with IDs
         val bookingData = appointment.copy(userId = userId, bookingId = bookingId)
 
-        // Save to Firebase
         ref.child(bookingId).setValue(bookingData)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -35,10 +32,11 @@ class BookingRepositoryImpl : BookingRepository {
             }
     }
 
+    // Get bookings for current user
     override fun getBookings(callback: (List<Appointment>) -> Unit) {
         val userId = auth.currentUser?.uid ?: return callback(emptyList())
 
-        // Fetch bookings for current user
+        // Query by userId
         ref.orderByChild("userId").equalTo(userId)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
