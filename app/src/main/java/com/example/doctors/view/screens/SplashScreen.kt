@@ -17,15 +17,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.animation.Animatable
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-
 import com.example.doctors.R
 import com.example.doctors.navigation.Routes
-import com.example.doctors.ui.theme.PrimaryBlue // Not strictly used for the dot now, but good to keep
+import com.example.doctors.ui.theme.PrimaryBlue
 import com.example.doctors.ui.theme.SplashEndWhite
-import com.example.doctors.ui.theme.SplashStartBlue // Used for dot and text color
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -147,10 +143,3 @@ fun SplashScreen(navController: NavHostController) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun SplashScreenPreview() {
-    // We create a rememberNavController() just for the preview context
-    val navController = rememberNavController()
-    SplashScreen(navController = navController)
-}

@@ -1,6 +1,5 @@
 package com.example.doctors.repository
 
-import com.example.doctors.model.User
 
 interface AuthRepository {
     fun login(email: String, password: String, callback: (Boolean, String) -> Unit)

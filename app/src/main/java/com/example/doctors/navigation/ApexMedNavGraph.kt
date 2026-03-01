@@ -20,7 +20,6 @@ import com.example.doctors.view.screens.PersonalDetailsScreen
 import com.example.doctors.view.screens.ProfileScreen
 import com.example.doctors.view.screens.RegisterScreen
 import com.example.doctors.view.screens.SecurityScreen
-
 import com.example.doctors.viewmodel.AuthViewModel
 import com.example.doctors.viewmodel.UserViewModel
 import com.example.doctors.viewmodel.BookingViewModel

@@ -91,7 +91,6 @@ class UserRepositoryImpl : UserRepository{
     }
 
     override fun deleteAccount(callback: (Boolean, String) -> Unit) {
-        // Deletes auth user and database record
         val user = auth.currentUser
         user?.delete()?.addOnCompleteListener { task ->
             if (task.isSuccessful) {
