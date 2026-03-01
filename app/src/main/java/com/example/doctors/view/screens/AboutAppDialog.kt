@@ -20,14 +20,14 @@ import com.example.doctors.R
 
 @Composable
 fun AboutAppDialog(onDismiss: () -> Unit) {
-    // Basic Dialog use gareko reference image ko customized look ko lagi
+    // Custom dialog to display app info
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Card(
             modifier = Modifier
-                .fillMaxWidth(0.85f) // Screen ko 85% width matra line
+                .fillMaxWidth(0.85f)
                 .wrapContentHeight(),
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -37,22 +37,23 @@ fun AboutAppDialog(onDismiss: () -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Top Section with Logo and Gradient
+                // Header with gradient and logo
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(180.dp)
                         .background(
                             brush = Brush.verticalGradient(
-                                colors = listOf(Color(0xFF8E24AA), Color(0xFF1976D2)) // Purple to Blue gradient
+                                colors = listOf(Color(0xFF8E24AA), Color(0xFF1976D2))
                             )
                         ),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        // Apex Med Logo
+
+                        // App logo image
                         Image(
-                            painter = painterResource(id = R.drawable.logo_final), // Apex Med Logo halnus
+                            painter = painterResource(id = R.drawable.logo_final),
                             contentDescription = "App Logo",
                             modifier = Modifier.size(150.dp)
                         )
@@ -61,7 +62,7 @@ fun AboutAppDialog(onDismiss: () -> Unit) {
                     }
                 }
 
-                // Info and Close Button Section
+                // App details and action button
                 Column(
                     modifier = Modifier
                         .padding(24.dp)
@@ -75,14 +76,14 @@ fun AboutAppDialog(onDismiss: () -> Unit) {
                         color = Color.Black
                     )
                     Text(
-                        text = "v 1.0.0 (Beta)", // Version detail reference image anusar
+                        text = "v 1.0.0 (Beta)",
                         fontSize = 14.sp,
                         color = Color.Gray
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Greyish Close Button
+                    // Close button
                     Button(
                         onClick = onDismiss,
                         modifier = Modifier
@@ -90,7 +91,7 @@ fun AboutAppDialog(onDismiss: () -> Unit) {
                             .height(48.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFF1F1F1) // Light grey background
+                            containerColor = Color(0xFFF1F1F1)
                         )
                     ) {
                         Text(
