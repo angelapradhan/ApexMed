@@ -1,17 +1,18 @@
 package com.example.doctors.repository
 
-import com.example.doctors.model.User
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.storage.FirebaseStorage
 
-class AuthRepositoryImpl : AuthRepository{
+class AuthRepositoryImpl : AuthRepository {
+    // Initialize Firebase services
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val database: FirebaseDatabase = FirebaseDatabase.getInstance()
     private val ref: DatabaseReference = database.getReference("Users")
+    private val storage: FirebaseStorage = FirebaseStorage.getInstance()
+
+    // Sign in
     override fun login(
         email: String,
         password: String,
@@ -27,6 +28,7 @@ class AuthRepositoryImpl : AuthRepository{
             }
     }
 
+    // Create a new user account
     override fun register(
         email: String,
         password: String,
@@ -43,20 +45,7 @@ class AuthRepositoryImpl : AuthRepository{
             }
     }
 
-    override fun addUserToDatabase(
-        userId: String,
-        model: User,
-        callback: (Boolean, String) -> Unit
-    ) {
-        ref.child(userId).setValue(model).addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                callback(true, "User registered successfully in database")
-            } else {
-                callback(false, task.exception?.message ?: "Database write failed")
-            }
-        }
-    }
-
+    // Send password reset link to user's email
     override fun forgetPassword(
         email: String,
         callback: (Boolean, String) -> Unit
@@ -66,39 +55,18 @@ class AuthRepositoryImpl : AuthRepository{
                 if (task.isSuccessful) {
                     callback(true, "Password reset email sent successfully.")
                 } else {
-
                     val errorMessage = task.exception?.message ?: "Failed to send reset email."
                     callback(false, errorMessage)
                 }
             }
     }
 
-    override fun getCurrentUser(callback: (Boolean, User?) -> Unit) {
-        val userId = auth.currentUser?.uid
-
-        if (userId == null) {
-            callback(false, null)
-            return
-        }
-
-
-        ref.child(userId).addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val user = snapshot.getValue(User::class.java)
-                if (user != null) {
-                    callback(true, user)
-                } else {
-                    callback(false, null)
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                callback(false, null)
-            }
-        })
+    // Sign out
+    override fun logout() {
+        auth.signOut()
     }
 
-
+    // Verify reset code and update to new password
     override fun confirmPasswordReset(
         code: String,
         newPassword: String,
@@ -107,10 +75,10 @@ class AuthRepositoryImpl : AuthRepository{
         auth.confirmPasswordReset(code, newPassword)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    // SUCCESS: Notify the ViewModel
                     callback(true, "Password reset successful.")
                 } else {
-                    val errorMessage = task.exception?.message ?: "Failed to reset password (Unknown Error)."
+                    val errorMessage =
+                        task.exception?.message ?: "Failed to reset password (Unknown Error)."
                     callback(false, errorMessage)
                 }
             }
