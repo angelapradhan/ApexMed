@@ -20,25 +20,39 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.doctors.viewmodel.AuthViewModel
+import com.example.doctors.viewmodel.BookingViewModel
+import com.example.doctors.model.allSpecialistsList
 
 @Composable
-fun AllBookingsScreen(navController: NavHostController, authViewModel: AuthViewModel) {
+fun AllBookingsScreen(
+    navController: NavHostController,
+    bookingViewModel: BookingViewModel
+) {
+    // Handle tab switching
+    val navBackStackEntry = navController.currentBackStackEntry
+    val initialTabArg = navBackStackEntry?.arguments?.getString("selectedTab")
     var selectedTab by remember { mutableStateOf(0) }
-    val bookings = authViewModel.bookedAppointments
 
-    // Tapaiko reference jastai Blue Gradient
+    LaunchedEffect(initialTabArg) {
+        if (initialTabArg == "specialist") {
+            selectedTab = 1
+        }
+    }
+
+    // Data source
+    val bookings = bookingViewModel.bookedAppointments
+
+    // UI background
     val gradientBrush = Brush.verticalGradient(
         colors = listOf(Color(0xFF1976D2).copy(alpha = 0.8f), Color.White),
         startY = 0f,
-        endY = 1000f
+        endY = 1500f
     )
 
     Scaffold(
-        containerColor = Color.White, // Main container seto, tara mathi gradient hunchha
+        containerColor = Color.White,
         bottomBar = { ModernBottomNav(navController) }
     ) { paddingValues ->
-        // Pura screen lai Box le wrap garne background ko lagi
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -47,7 +61,7 @@ fun AllBookingsScreen(navController: NavHostController, authViewModel: AuthViewM
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
 
-                // --- TOP BAR (Back Button + Title) ---
+                // Top Bar
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -66,14 +80,14 @@ fun AllBookingsScreen(navController: NavHostController, authViewModel: AuthViewM
                     Spacer(modifier = Modifier.width(12.dp))
 
                     Text(
-                        text = "My Appointments",
+                        text = "Bookings",
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
                 }
 
-                // --- TAB TOGGLE SECTION ---
+                // Tab Switcher
                 Box(
                     modifier = Modifier
                         .padding(horizontal = 24.dp)
@@ -100,14 +114,14 @@ fun AllBookingsScreen(navController: NavHostController, authViewModel: AuthViewM
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // --- LIST CONTENT ---
+                // Content List
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    // Sachiye-ko PaddingValues (Error Fix)
                     contentPadding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 20.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     if (selectedTab == 0) {
+                        // My Appointments
                         if (bookings.isEmpty()) {
                             item {
                                 Text("No appointments yet.", color = Color.White.copy(0.7f), modifier = Modifier.padding(20.dp))
@@ -116,12 +130,13 @@ fun AllBookingsScreen(navController: NavHostController, authViewModel: AuthViewM
                             items(bookings) { appointment ->
                                 UpcomingAppointmentCard(
                                     appointment = appointment,
-                                    onCancelClick = { authViewModel.cancelBooking(appointment) }
+                                    onCancelClick = { bookingViewModel.cancelBooking(appointment) }
                                 )
                             }
                         }
                     } else {
-                        items(specialists) { doctor ->
+                        // Specialist List
+                        items(allSpecialistsList) { doctor ->
                             MainSpecialistCard(doctor, navController)
                         }
                     }
@@ -131,7 +146,7 @@ fun AllBookingsScreen(navController: NavHostController, authViewModel: AuthViewM
     }
 }
 
-// Custom Tab Item (Reference image ko 'Kudos' style)
+// Custom Tab UI
 @Composable
 fun CustomTabItem(title: String, isSelected: Boolean, modifier: Modifier, onClick: () -> Unit) {
     Surface(
