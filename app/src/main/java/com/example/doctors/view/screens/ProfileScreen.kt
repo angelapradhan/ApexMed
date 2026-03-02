@@ -43,6 +43,7 @@ fun ProfileScreen(
     val userState = userViewModel.state
     val user = userState.currentUser
 
+
     // background gradient
     val gradientBrush = androidx.compose.ui.graphics.Brush.verticalGradient(
         colors = listOf(LoginBlue.copy(alpha = 0.8f), Color.White),
