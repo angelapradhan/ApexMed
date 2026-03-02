@@ -52,9 +52,14 @@ class UserViewModel(
         val fName = nameParts.getOrNull(0) ?: ""
         val lName = nameParts.drop(1).joinToString(" ")
 
-        val updates = mapOf("firstName" to fName, "lastName" to lName, "userName" to userName, "contact" to phoneNumber)
+        val updates = mapOf(
+            "firstName" to fName,
+            "lastName" to lName,
+            "userName" to userName,
+            "contact" to phoneNumber
+        )
 
-        realtimeDb.child(uid).updateChildren(updates)
+        realtimeDb.child("Users").child(uid).updateChildren(updates)
             .addOnSuccessListener {
                 Toast.makeText(context, "Profile Updated!", Toast.LENGTH_SHORT).show()
                 fetchCurrentUser()
