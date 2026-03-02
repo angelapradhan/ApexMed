@@ -131,14 +131,22 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.5.0")
     implementation(libs.androidx.material3)
 
+    //unit test dependencies
+    testImplementation("org.mockito:mockito-core:5.11.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
 
+    //instrumented test dependencies
+    testImplementation(libs.junit)
+    // Android Instrumented Tests - Use 1.5.0 to match Espresso 3.5.0
+    androidTestImplementation("androidx.test:runner:1.5.0")
+    androidTestImplementation("androidx.test:rules:1.5.0")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
 
-    // Firebase Authentication
-    //implementation("com.google.firebase:firebase-auth-ktx")
+    // Espresso - Change 3.5.1 to 3.5.0
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.0")
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.0")
 
-    // Firebase Realtime Database
-    //implementation("com.google.firebase:firebase-database-ktx")
-
-    // Platform (BOM)
-    //implementation(platform("com.google.firebase:firebase-bom:32.x.x"))
+    // Compose Testing
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.6.0")
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.0")
 }
